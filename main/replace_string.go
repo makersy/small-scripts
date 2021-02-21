@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	expectSuffix = ".md"    // 需替换文件后缀。若为""，替换全部
-	dir          = "./test" // 根目录
-	sourceStr    = "0"      // 待替换文本
-	targetStr    = "1"      // 替换后文本
+	expectSuffix = ".md"                                                 // 需替换文件后缀。若为""，替换全部
+	dir          = "/Users/yhl/develop/mycode/golang/small-scripts/test" // 根目录
+	sourceStr    = "0"                                                   // 待替换文本
+	targetStr    = "1"                                                   // 替换后文本
 )
 
 //main 按需更改常量值
