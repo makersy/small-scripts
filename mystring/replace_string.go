@@ -1,4 +1,4 @@
-package main
+package mystring
 
 import (
 	"bufio"
@@ -10,16 +10,10 @@ import (
 )
 
 const (
-	expectSuffix = ".md"                                                 // 需替换文件后缀。若为""，替换全部
-	dir          = "/Users/yhl/develop/mycode/golang/small-scripts/test" // 根目录
-	sourceStr    = "0"                                                   // 待替换文本
-	targetStr    = "1"                                                   // 替换后文本
+	expectSuffix = ".md"                   // 需替换文件后缀。若为""，替换全部
+	sourceStr    = "http://qn.makersy.top" // 待替换文本
+	targetStr    = "http://qn.haoliny.top" // 替换后文本
 )
-
-//main 按需更改常量值
-func main() {
-	ReplaceTextForFilesIn(dir)
-}
 
 //ReplaceTextForFilesIn 替换目录下所有文件的文本
 func ReplaceTextForFilesIn(dir string) {
