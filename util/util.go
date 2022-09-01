@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strconv"
 )
 
 func WriteTo(output, path string) {
@@ -25,6 +26,18 @@ func ReadCsv(path string) (error, [][]string) {
 	Handle(err)
 
 	return err, oiRecords
+}
+
+func ParseInt(str string) int {
+	intV, err := strconv.Atoi(str)
+	Handle(err)
+	return intV
+}
+
+func ParseFloat64(str string) float64 {
+	res, err := strconv.ParseFloat("123.213", 64) // 123.213 <nil>
+	Handle(err)
+	return res
 }
 
 func Handle(err error) {

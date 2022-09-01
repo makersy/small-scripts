@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/iancoleman/orderedmap"
 	"small-scripts/csv"
 	"small-scripts/util"
 	"strings"
@@ -11,48 +12,99 @@ import (
 func main() {
 	var wg sync.WaitGroup
 	var lock sync.RWMutex
-	wg.Add(2)
 
-	var uaids []string
+	uidScores := orderedmap.New()
 
-	// read
+	// order info 25'
+	wg.Add(1)
 	go func() {
-		orderInfos := csv.ReadOrderInfo(true, false)
-		fmt.Println(len(orderInfos))
-
+		orderDesc := csv.ReadOrder(true, true)
 		lock.Lock()
-		for _, oi := range orderInfos {
-			uaids = append(uaids, oi.Uaid)
+
+		size := len(orderDesc)
+		for i, uid := range orderDesc {
+			addScore(uidScores, uid, size-i)
 		}
+
 		lock.Unlock()
 
 		wg.Done()
 	}()
 
+	// MiopBehavior 25'
+	wg.Add(1)
 	go func() {
-		offlineVisit := csv.ReadOfflineVisit(true)
-		fmt.Println(len(offlineVisit))
+		uids := csv.ReadMiopBehavior(true)
 
 		lock.Lock()
-		for _, item := range offlineVisit {
-			uaids = append(uaids, item.Uaid)
-			if len(uaids) == 21000 {
-				break
-			}
+
+		size := len(uids)
+		for i, uid := range uids {
+			addScore(uidScores, uid, size-i)
 		}
+
 		lock.Unlock()
 
 		wg.Done()
 	}()
+
+	// MihomeDistance 25'
+	wg.Add(1)
+	go func() {
+		uids := csv.ReadMihomeDistance()
+
+		lock.Lock()
+
+		size := len(uids)
+		for i, uid := range uids {
+			addScore(uidScores, uid, size-i)
+		}
+
+		lock.Unlock()
+
+		wg.Done()
+	}()
+
+	// offline visit 25'
+	wg.Add(1)
+	go func() {
+		uids := csv.ReadOfflineVisit(true)
+
+		lock.Lock()
+
+		size := len(uids)
+		for i, uid := range uids {
+			addScore(uidScores, uid, size-i)
+		}
+
+		lock.Unlock()
+
+		wg.Done()
+	}()
+
 	wg.Wait()
 
-	fmt.Printf("final uaids length: %d\n", len(uaids))
+	// sort by score desc
+	uidScores.Sort(func(a *orderedmap.Pair, b *orderedmap.Pair) bool {
+		return a.Value().(int) > b.Value().(int)
+	})
+
+	// top 2w
+	fmt.Printf("all uaids length: %d\n", len(uidScores.Keys()))
 
 	// write
-	join := strings.Join(uaids, "\n")
+	join := strings.Join(uidScores.Keys()[:21000], "\n")
 	write(join)
 }
 
 func write(output string) {
 	util.WriteTo(output, "/Users/yhl/develop/mycode/golang/small-scripts/csv/output/predict_1.txt")
+}
+
+func addScore(m *orderedmap.OrderedMap, uid string, score int) {
+	if v, ok := m.Get(uid); ok {
+		m.Set(uid, v.(int)+score)
+	} else {
+		m.Set(uid, score)
+	}
 }
